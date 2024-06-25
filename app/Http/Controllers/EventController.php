@@ -12,8 +12,22 @@ class EventController extends Controller
 {
     public function index(Request $request)
     {
+        $events = Event::all();
+
+
+        if($events->start > $events->end){
+            $events->status = 'Done';
+        }
+        else if($events->start < $events->end)
+        {
+            $events->status = 'Soon';
+        }
+        else if($events->start == $events->end)
+        {
+            $events->status = 'Ongoing';
+        }
         if ($request->ajax()) {
-            $events = Event::all();
+
             $data = Event::whereDate('start', '>=', $request->start)
                 ->whereDate('end',   '<=', $request->end)
                 ->get(['id', 'title', 'start', 'end']);
@@ -22,7 +36,7 @@ class EventController extends Controller
             return response()->json($events);
         }
 
-        return view('dashboard');
+        return view('dashboard', compact('events'));
     }
 
     public function ajax(Request $request)
@@ -59,8 +73,5 @@ class EventController extends Controller
                 break;
         }
     }
-
-
-
 
 }
